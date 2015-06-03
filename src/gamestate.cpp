@@ -93,6 +93,12 @@ void GameState::draw(game::Game* game)
 	game->levelVpMatrixUniform.setMatrix4(game->view.getViewProjectionMatrix());
 	game->level.draw(currentTime + 7.0f, game->levelPositionAttribute, game->levelUvAttribute, game->levelColorUniform);
 
+	game->renderProgram.use(game->video->window);
+	game->renderCurrentTimeUniform.setFloat(currentTime);
+	game->renderFlashValueUniform.setFloat(flashValue);
+	game->renderProgram.draw();
+
+	game->interfaceProgram.use(game->video->window);
 	game->levelColorUniform.setColor(flat::video::Color(1.0f, 0.0f, 0.0f, 1.0f));
 	const flat::geometry::Vector2 windowSize = game->video->window->getSize();
 	float cursorPosition = currentTime / game->audioAnalyzer.getDuration();
@@ -100,11 +106,6 @@ void GameState::draw(game::Game* game)
 	flat::geometry::Rectangle r(flat::geometry::Vector2(2.0f, 2.0f), flat::geometry::Vector2((windowSize.x - 4.0f) * cursorPosition, 2.0f));
 	game->levelVpMatrixUniform.setMatrix4(game->interfaceView.getViewProjectionMatrix());
 	r.draw(game->levelPositionAttribute, game->levelUvAttribute);
-
-	game->renderProgram.use(game->video->window);
-	game->renderCurrentTimeUniform.setFloat(currentTime);
-	game->renderFlashValueUniform.setFloat(flashValue);
-	game->renderProgram.draw();
 }
 
 void GameState::exit(flat::state::Agent* agent)

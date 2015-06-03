@@ -17,6 +17,8 @@ void GlobalState::enter(flat::state::Agent* agent)
 	
 	game->renderProgram.load("rsrc/shader/renderprogram.frag", "rsrc/shader/renderprogram.vert");
 	game->renderProgram.addInputTexture(screenTexture);
+
+	game->interfaceProgram.load("rsrc/shader/interfaceprogram.frag", "rsrc/shader/interfaceprogram.vert");
 	
 	game->levelPositionAttribute = game->levelPass.getAttribute("position");
 	game->levelUvAttribute = game->levelPass.getAttribute("uv");

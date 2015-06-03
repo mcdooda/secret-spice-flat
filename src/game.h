@@ -32,6 +32,7 @@ class Game : public flat::Game
 		flat::video::FrameBuffer frameBuffer;
 		flat::video::Pass levelPass;
 		flat::video::Render renderProgram;
+		flat::video::Program interfaceProgram;
 		
 		// attributes & uniforms
 		flat::video::Attribute levelPositionAttribute;

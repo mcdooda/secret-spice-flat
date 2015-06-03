@@ -145,7 +145,7 @@ void LoadingState::loadLevel()
 
 		flat::geometry::Rectangle r = rectangle;
 		r.transform(matrix4);
-		
+
 		bool addPlatform = loudness > averageLoudness * 0.2f;
 		
 		if (addPlatform)
