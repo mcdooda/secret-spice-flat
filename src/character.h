@@ -18,7 +18,7 @@ class Character
 		
 		void setSpectrum(Spectrum* spectrum);
 		
-		void draw(flat::video::Attribute vertexAttribute, const flat::video::Uniform& colorUniform, const flat::video::Uniform& centerUniform);
+		void draw(flat::video::Attribute vertexAttribute, const flat::video::Uniform& colorUniform, const flat::video::Uniform& centerUniform) const;
 		
 		inline void setPosition(const flat::geometry::Vector2& position) { m_position = position; }
 		inline const flat::geometry::Vector2& getPosition() const { return m_position; }

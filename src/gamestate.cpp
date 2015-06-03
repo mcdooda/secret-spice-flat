@@ -8,7 +8,7 @@ void GameState::enter(flat::state::Agent* agent)
 	game::Game* game = (game::Game*) agent;
 	
 	game->music = game->audio->loadMusic(game->argGetString(1));
-	game->music->play();
+	game->music->play(1);
 	
 	game->beginTime = game->time->getTime();
 	game->lastTick = -2.0f;
@@ -24,6 +24,17 @@ void GameState::execute(flat::state::Agent* agent)
 
 void GameState::update(game::Game* game)
 {
+	if (game->input->keyboard->isJustPressed(K(P)))
+	{
+		game->time->togglePause();
+
+		if (game->time->isPaused())
+			flat::audio::Music::pause();
+
+		else
+			flat::audio::Music::resume();
+	}
+
 	float currentTime = game->time->getTime() - game->beginTime;
 	
 	if (!game->ticks.empty() && currentTime > *game->ticks.begin())

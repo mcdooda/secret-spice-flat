@@ -31,7 +31,7 @@ void Character::setSpectrum(Spectrum* spectrum)
 	}
 }
 
-void Character::draw(flat::video::Attribute vertexAttribute, const flat::video::Uniform& colorUniform, const flat::video::Uniform& centerUniform)
+void Character::draw(flat::video::Attribute vertexAttribute, const flat::video::Uniform& colorUniform, const flat::video::Uniform& centerUniform) const
 {
 	colorUniform.setColor(flat::video::Color::WHITE);
 	centerUniform.setVector2(flat::geometry::Vector2(0, 0));
