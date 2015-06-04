@@ -5,6 +5,7 @@
 
 namespace game
 {
+class GameState;
 
 class LoadingState : public flat::thread::Thread, public flat::state::State
 {
@@ -19,9 +20,9 @@ class LoadingState : public flat::thread::Thread, public flat::state::State
 		virtual void exit(flat::state::Agent* agent);
 		
 	private:
-		bool m_loaded;
+		volatile bool m_loaded;
 		Game* m_game;
-		AudioAnalyzer* m_audioAnalyzer;
+		GameState* m_gameState;
 };
 
 }

@@ -18,12 +18,6 @@ class Game : public flat::Game
 		virtual void checkArgs();
 		
 	public:
-		// music
-		flat::audio::Music* music;
-		AudioAnalyzer audioAnalyzer;
-		std::list<essentia::Real> ticks;
-		Spectrum* currentSpectrum;
-		
 		// views
 		flat::video::View view;
 		flat::video::View interfaceView;
@@ -44,13 +38,6 @@ class Game : public flat::Game
 		flat::video::Attribute renderUvAttribute;
 		flat::video::Uniform renderCurrentTimeUniform;
 		flat::video::Uniform renderFlashValueUniform;
-		
-		// game objects
-		Level level;
-		
-		float beginTime;
-		float lastTick;
-		float rotateDirection;
 };
 
 } // game
