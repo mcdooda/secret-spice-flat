@@ -24,8 +24,8 @@ void Level::getCurrentPlatforms(float time, Platform** previousPlatform, Platfor
 {
 	if (m_platforms.empty())
 	{
-		*previousPlatform = NULL;
-		*nextPlatform = NULL;
+		*previousPlatform = nullptr;
+		*nextPlatform = nullptr;
 	}
 	else if (time < m_platforms.front().getTime())
 	{
@@ -34,8 +34,8 @@ void Level::getCurrentPlatforms(float time, Platform** previousPlatform, Platfor
 	}
 	else
 	{
-		*previousPlatform = NULL;
-		*nextPlatform = NULL;
+		*previousPlatform = nullptr;
+		*nextPlatform = nullptr;
 		for (std::list<Platform>::iterator it = m_platforms.begin(); it != m_platforms.end(); it++)
 		{
 			if (it->getTime() > time)
@@ -46,7 +46,7 @@ void Level::getCurrentPlatforms(float time, Platform** previousPlatform, Platfor
 				break;
 			}
 		}
-		if (*previousPlatform == NULL)
+		if (!*previousPlatform)
 		{
 			*previousPlatform = &m_platforms.back();
 			*nextPlatform = *previousPlatform;
@@ -54,7 +54,7 @@ void Level::getCurrentPlatforms(float time, Platform** previousPlatform, Platfor
 	}
 }
 
-void Level::addPlatform(Platform platform)
+void Level::addPlatform(const Platform& platform)
 {
 	m_platforms.push_back(platform);
 }

@@ -133,28 +133,31 @@ void LoadingState::loadLevel()
 		essentia::Real prevLoudness = prevSpectrum->getLoudness();
 		essentia::Real loudness = currentSpectrum->getLoudness();
 		essentia::Real nextLoudness = nextSpectrum->getLoudness();
-		
-		float angle = -(loudness - averageLoudness / 2.0f) / (averageLoudness * 8.0f);
-		bool strongPeak = false;
-		if (prevPrevLoudness < loudness && prevLoudness < loudness && nextLoudness < loudness)
-		{
-			strongPeak = true;
-			angleY += M_PI;
-		}
-
-		flat::geometry::Matrix4 matrix4;
-		matrix4.scale(20.0f);
-		matrix4.rotateZ(angle);
-		matrix4.translate(center);
-
-		flat::geometry::Rectangle r = rectangle;
-		r.transform(matrix4);
 
 		bool addPlatform = loudness > averageLoudness * 0.2f;
 		
 		if (addPlatform)
+		{
+			float angle = -(loudness - averageLoudness / 2.0f) / (averageLoudness * 8.0f);
+			bool strongPeak = false;
+			if (prevPrevLoudness < loudness && prevLoudness < loudness && nextLoudness < loudness)
+			{
+				strongPeak = true;
+				angleY += M_PI;
+			}
+
+			flat::geometry::Vector2 max = currentSpectrum->getMax();
+
+			flat::geometry::Matrix4 matrix4;
+			matrix4.scale(20.f * (0.5f - max.x) * 2.f, 20.f * (0.5f - max.x) * 2.f);
+			matrix4.rotateZ(angle);
+			matrix4.translate(center);
+
+			flat::geometry::Rectangle r = rectangle;
+			r.transform(matrix4);
+
 			m_gameState->level.addPlatform(Platform(r, center, angle, angleY, tick, strongPeak ? purple : red, strongPeak));
-		
+		}
 		else
 		{
 			it = m_gameState->ticks.erase(it);

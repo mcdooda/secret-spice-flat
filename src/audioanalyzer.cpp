@@ -174,7 +174,7 @@ void AudioAnalyzer::analyze()
 		m_spectrumAlgorithm->compute();
 		m_loudnessAlgorithm->compute();
 		m_strongPeakAlgorithm->compute();
-		m_spectrums.push_back(Spectrum(*m_spectrumBuffer, m_strongPeakValue, m_loudness));
+		m_spectrums.emplace_back(*m_spectrumBuffer, m_strongPeakValue, m_loudness);
 	}
 }
 
@@ -216,7 +216,7 @@ void AudioAnalyzer::getSpectrum(float time, Spectrum** spectrum) const
 		*spectrum = (Spectrum*) &m_spectrums[index];
 	
 	else
-		*spectrum = NULL;
+		*spectrum = nullptr;
 }
 
 } // game

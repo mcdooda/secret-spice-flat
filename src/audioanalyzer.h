@@ -19,7 +19,7 @@ class AudioAnalyzer
 		static void open();
 		static void close();
 		
-		void setInputFileName(std::string inputFileName) { m_inputFileName = inputFileName; }
+		inline void setInputFileName(const std::string& inputFileName) { m_inputFileName = inputFileName; }
 		void loadAlgorithms();
 		void analyze();
 		void computeAverageLoudness();

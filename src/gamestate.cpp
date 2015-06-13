@@ -50,7 +50,7 @@ void GameState::update(game::Game* game)
 	Platform* nextPlatform;
 	level.getCurrentPlatforms(currentTime, &previousPlatform, &nextPlatform);
 	
-	if (previousPlatform != NULL && nextPlatform != NULL)
+	if (previousPlatform && nextPlatform)
 	{
 		float viewAngle;
 		float viewAngleY;
@@ -91,7 +91,7 @@ void GameState::draw(game::Game* game)
 		game->video->setClearColor(flat::video::Color(flashValue, 0.f, 0.f, 1.0f));
 		//game->video->setClearColor(flat::video::Color::WHITE);
 	}
-	else if (m_currentSpectrum != NULL)
+	else if (m_currentSpectrum)
 	{
 		float gray = 1.0f - m_currentSpectrum->getMax().y;
 		game->video->setClearColor(flat::video::Color(gray));

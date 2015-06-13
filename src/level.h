@@ -18,7 +18,7 @@ class Level
 		
 		void getCurrentPlatforms(float time, Platform** previousPlatform, Platform** nextPlatform);
 		
-		void addPlatform(Platform platform);
+		void addPlatform(const Platform& platform);
 		void removeOldPlatforms(float maxTime);
 		void fadeOldPlatforms(float maxTime);
 		
