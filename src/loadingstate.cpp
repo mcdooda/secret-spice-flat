@@ -78,7 +78,7 @@ void LoadingState::loadLevel()
 	flat::geometry::Rectangle rectangle(flat::geometry::Vector2(-1.0f, -1.0f), flat::geometry::Vector2(2.0f, 2.0f));
 	AudioAnalyzer& audioAnalyzer = m_gameState->audioAnalyzer;
 	essentia::Real averageLoudness = audioAnalyzer.getAverageLoudness();
-	essentia::Real maxLoudness = audioAnalyzer.getMaxLoudness();
+	//essentia::Real maxLoudness = audioAnalyzer.getMaxLoudness();
 	float angleY = 0;
 	int i = 0;
 	int length = m_gameState->ticks.size();
@@ -120,11 +120,9 @@ void LoadingState::loadLevel()
 		essentia::Real loudness = currentSpectrum->getLoudness();
 		essentia::Real nextLoudness = nextSpectrum->getLoudness();
 
-		essentia::Real localAverageLoudness = (prevPrevLoudness + prevLoudness + loudness + nextLoudness) / 4.f;
+		//essentia::Real localAverageLoudness = (prevPrevLoudness + prevLoudness + loudness + nextLoudness) / 4.f;
 		
-		float angle = -(loudness - localAverageLoudness / 2.0f) / (localAverageLoudness * 8.0f);
-		bool strongPeak = false;
-		if (prevPrevLoudness < loudness && prevLoudness < loudness && nextLoudness < loudness)
+		if (loudness > averageLoudness * 0.2f)
 		{
 			float angle = -(loudness - averageLoudness / 2.0f) / (averageLoudness * 8.0f);
 			bool strongPeak = false;
@@ -144,10 +142,7 @@ void LoadingState::loadLevel()
 			flat::geometry::Rectangle r = rectangle;
 			r.transform(matrix4);
 
-			bool addPlatform = loudness > averageLoudness * 0.2f && loudness > maxLoudness * 0.1f;
-
-			if (addPlatform)
-				m_gameState->level.addPlatform(Platform(r, center, angle, angleY, tick, strongPeak ? purple : red, strongPeak));
+			m_gameState->level.addPlatform(Platform(r, center, angle, angleY, tick, strongPeak ? purple : red, strongPeak));
 		}
 		else
 		{
