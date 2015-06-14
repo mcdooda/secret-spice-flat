@@ -15,7 +15,7 @@ Character::~Character()
 
 void Character::setSpectrum(Spectrum* spectrum)
 {
-	if (spectrum != NULL)
+	if (spectrum)
 	{
 		const std::vector<essentia::Real>& spectrumData = spectrum->getSpectrum();
 		float x = 0;

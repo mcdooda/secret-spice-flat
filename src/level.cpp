@@ -46,7 +46,7 @@ void Level::getCurrentPlatforms(float time, Platform** previousPlatform, Platfor
 				break;
 			}
 		}
-		if (*previousPlatform == nullptr)
+		if (!*previousPlatform)
 		{
 			*previousPlatform = &m_platforms.back();
 			*nextPlatform = *previousPlatform;
@@ -54,7 +54,7 @@ void Level::getCurrentPlatforms(float time, Platform** previousPlatform, Platfor
 	}
 }
 
-void Level::addPlatform(Platform platform)
+void Level::addPlatform(const Platform& platform)
 {
 	m_platforms.push_back(platform);
 }

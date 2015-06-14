@@ -215,10 +215,10 @@ void AudioAnalyzer::freeAlgorithms()
 void AudioAnalyzer::getSpectrum(float time, const Spectrum*& spectrum) const
 {
 	unsigned int index;
-
+	
 	if (time <= 0)
 		index = 0;
-
+	
 	else
 		index = floor(time / m_duration * m_spectrums.size());
 	
