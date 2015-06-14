@@ -21,11 +21,11 @@ void Spectrum::computeMax()
 	float max = 0;
 	int i = 0;
 	int imax = 0;
-	for (std::vector<essentia::Real>::iterator it2 = m_spectrum.begin(); it2 != m_spectrum.end(); it2++)
+	for (essentia::Real y : m_spectrum)
 	{
-		if (*it2 > max)
+		if (y > max)
 		{
-			max = *it2;
+			max = y;
 			imax = i;
 		}
 		i++;

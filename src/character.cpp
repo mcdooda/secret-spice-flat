@@ -21,10 +21,9 @@ void Character::setSpectrum(Spectrum* spectrum)
 		float x = 0;
 		float dx = 1.0f / spectrumData.size() * M_PI * 2;
 		std::vector<flat::geometry::Vector2> shapeVertices(spectrumData.size());
-		for (std::vector<essentia::Real>::const_iterator it = spectrumData.begin(); it != spectrumData.end(); it++)
+		for (essentia::Real y : spectrumData)
 		{
-			float y = *it;
-			shapeVertices.push_back(flat::geometry::Vector2(x, y));
+			shapeVertices.emplace_back(x, y);
 			x += dx;
 		}
 		m_shape.setVertices(shapeVertices);

@@ -78,63 +78,51 @@ void LoadingState::loadLevel()
 	flat::geometry::Rectangle rectangle(flat::geometry::Vector2(-1.0f, -1.0f), flat::geometry::Vector2(2.0f, 2.0f));
 	AudioAnalyzer& audioAnalyzer = m_gameState->audioAnalyzer;
 	essentia::Real averageLoudness = audioAnalyzer.getAverageLoudness();
+	essentia::Real maxLoudness = audioAnalyzer.getMaxLoudness();
 	float angleY = 0;
 	int i = 0;
 	int length = m_gameState->ticks.size();
-	for (std::list<essentia::Real>::iterator it = m_gameState->ticks.begin(); it != m_gameState->ticks.end(); it++)
+	std::list<essentia::Real>::iterator it = m_gameState->ticks.begin();
+	essentia::Real prevPrevTick = 0.f;
+	essentia::Real prevTick = *it;
+	++it;
+	essentia::Real tick = *it;
+	for (; it != m_gameState->ticks.end(); ++it)
 	{
-		essentia::Real tick = *it;
-		
-		essentia::Real prevPrevTick = 0.f;
-		essentia::Real prevTick = 0.f;
-		if (i > 0)
-		{
-			it--;
-			prevTick = *it;
-			if (i > 1)
-			{
-				it--;
-				prevPrevTick = *it;
-				it++;
-			}
-			else
-				prevPrevTick = prevTick;
-			it++;
-		}
-		else
-		{
-			prevTick = tick;
-			prevPrevTick = prevTick;
-		}
+		prevPrevTick = prevTick;
+		prevTick = tick;
+		tick = *it;
 			
 		essentia::Real nextTick;
 		if (i < length - 1)
 		{
-			it++;
+			++it;
 			nextTick = *it;
-			it--;
+			--it;
 		}
 		else
 			nextTick = tick;
 
 		flat::geometry::Vector2 center = levelView.getViewMatrix() * zero;
 		
-		Spectrum* prevPrevSpectrum;
-		Spectrum* prevSpectrum;
-		Spectrum* currentSpectrum;
-		Spectrum* nextSpectrum;
+		const Spectrum* prevPrevSpectrum;
+		const Spectrum* prevSpectrum;
+		const Spectrum* currentSpectrum;
+		const Spectrum* nextSpectrum;
 		
-		audioAnalyzer.getSpectrum(prevPrevTick, &prevPrevSpectrum);
-		audioAnalyzer.getSpectrum(prevTick, &prevSpectrum);
-		audioAnalyzer.getSpectrum(tick, &currentSpectrum);
-		audioAnalyzer.getSpectrum(nextTick, &nextSpectrum);
+		audioAnalyzer.getSpectrum(prevPrevTick, prevPrevSpectrum);
+		audioAnalyzer.getSpectrum(prevTick, prevSpectrum);
+		audioAnalyzer.getSpectrum(tick, currentSpectrum);
+		audioAnalyzer.getSpectrum(nextTick, nextSpectrum);
 		
 		essentia::Real prevPrevLoudness = prevPrevSpectrum->getLoudness();
 		essentia::Real prevLoudness = prevSpectrum->getLoudness();
 		essentia::Real loudness = currentSpectrum->getLoudness();
 		essentia::Real nextLoudness = nextSpectrum->getLoudness();
+
+		essentia::Real localAverageLoudness = (prevPrevLoudness + prevLoudness + loudness + nextLoudness) / 4.f;
 		
-		float angle = -(loudness - averageLoudness / 2.0f) / (averageLoudness * 8.0f);
+		float angle = -(loudness - localAverageLoudness / 2.0f) / (localAverageLoudness * 8.0f);
 		bool strongPeak = false;
 		if (prevPrevLoudness < loudness && prevLoudness < loudness && nextLoudness < loudness)
 		{
@@ -150,7 +138,7 @@ void LoadingState::loadLevel()
 		flat::geometry::Rectangle r = rectangle;
 		r.transform(matrix4);
 
-		bool addPlatform = loudness > averageLoudness * 0.2f;
+		bool addPlatform = loudness > averageLoudness * 0.2f && loudness > maxLoudness * 0.1f;
 		
 		if (addPlatform)
 			m_gameState->level.addPlatform(Platform(r, center, angle, angleY, tick, strongPeak ? purple : red, strongPeak));
@@ -158,19 +146,13 @@ void LoadingState::loadLevel()
 		else
 		{
 			it = m_gameState->ticks.erase(it);
-			it--;
+			--it;
 		}
 		
-		std::list<essentia::Real>::iterator nextIt = it;
-		nextIt++;
-		if (nextIt != m_gameState->ticks.end())
-		{
-			essentia::Real nextTick = *nextIt;
-			flat::geometry::Vector2 move(200.0f * (nextTick - tick), 0);
-			levelView.move(move);
-		}
+		flat::geometry::Vector2 move(200.0f * (nextTick - tick), 0);
+		levelView.move(move);
 		
-		i++;
+		++i;
 	}
 }
 

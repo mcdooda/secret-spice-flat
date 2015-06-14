@@ -28,9 +28,11 @@ class AudioAnalyzer
 		essentia::Real getDuration() const { return m_duration; }
 		const std::vector<essentia::Real>& getTicks() const { return m_ticks; }
 		
-		void getSpectrum(float time, Spectrum** spectrum) const;
+		void getSpectrum(float time, const Spectrum*& spectrum) const;
 		
 		inline essentia::Real getAverageLoudness() const { return m_averageLoudness; }
+		inline essentia::Real getMaxLoudness() const { return m_maxLoudness; }
+		inline essentia::Real getMax() const { return m_max; }
 		
 	private:
 		std::string m_inputFileName;
@@ -55,6 +57,8 @@ class AudioAnalyzer
 		std::vector<essentia::Real> m_ticks;
 		std::vector<Spectrum> m_spectrums;
 		essentia::Real m_averageLoudness;
+		essentia::Real m_maxLoudness;
+		essentia::Real m_max;
 };
 
 } // game

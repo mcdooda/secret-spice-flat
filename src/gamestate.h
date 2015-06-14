@@ -18,16 +18,19 @@ class GameState : public flat::state::State
 		void draw(game::Game* game);
 		virtual void exit(flat::state::Agent* agent);
 
+	private:
+		void drawCurrentSpectrum(game::Game* game);
+
 	public:
 		AudioAnalyzer audioAnalyzer;
 		std::list<essentia::Real> ticks;
 		Level level;
 
 	private:
-		std::unique_ptr<flat::audio::Music> m_music;
-		Spectrum* m_currentSpectrum;
-		float m_beginTime;
+		flat::audio::Music* m_music;
+		const Spectrum* m_currentSpectrum;
 		float m_lastTick;
+		bool m_drawSpectrum;
 };
 
 }

@@ -1,4 +1,7 @@
+#include <algorithm>
 #include "gamestate.h"
+
+#define CAN_REWIND 1
 
 namespace game
 {
@@ -7,11 +10,12 @@ void GameState::enter(flat::state::Agent* agent)
 {
 	game::Game* game = (game::Game*) agent;
 	
-	m_music.reset(game->audio->loadMusic(game->argGetString(1)));
+	m_music = game->audio->loadMusic(game->argGetString(1));
 	m_music->play(1);
 	
-	m_beginTime = game->time->getTime();
 	m_lastTick = -2.0f;
+
+	m_drawSpectrum = false;
 }
 
 void GameState::execute(flat::state::Agent* agent)
@@ -26,25 +30,57 @@ void GameState::update(game::Game* game)
 {
 	if (game->input->keyboard->isJustPressed(K(P)))
 	{
-		game->time->togglePause();
-
-		if (game->time->isPaused())
-			flat::audio::Music::pause();
-
-		else
-			flat::audio::Music::resume();
+		m_music->togglePause();
 	}
 
-	float currentTime = game->time->getTime() - m_beginTime;
+	if (game->input->keyboard->isJustPressed(K(S)))
+	{
+		m_drawSpectrum = !m_drawSpectrum;
+	}
+
+#if CAN_REWIND
+	if (game->input->keyboard->isJustPressed(K(LEFT)))
+	{
+		m_music->move(-5.0);
+	}
+	else if (game->input->keyboard->isJustPressed(K(RIGHT)))
+	{
+		m_music->move(5.0);
+	}
+
+	if (game->input->keyboard->isJustPressed(K(R)))
+	{
+		m_music->rewind();
+		m_music->play(1);
+	}
+#endif
+
+	float currentTime = m_music->getPosition();
+
+	std::cout << "currentTime = " << currentTime << std::endl;
 	
 	if (!ticks.empty() && currentTime > *ticks.begin())
 	{
+#if CAN_REWIND
+		m_lastTick = *ticks.begin();
+		for (essentia::Real tick : ticks)
+		{
+			if (tick < currentTime)
+				m_lastTick = tick;
+
+			else
+				break;
+		}
+#else
 		m_lastTick = *ticks.begin();
 		ticks.pop_front();
+#endif
 	}
 	
 	level.fadeOldPlatforms(currentTime);
+#if !CAN_REWIND
 	level.removeOldPlatforms(currentTime - 7.0f);
+#endif
 	
 	Platform* previousPlatform;
 	Platform* nextPlatform;
@@ -74,13 +110,13 @@ void GameState::update(game::Game* game)
 		game->view.rotateZ(viewAngle);
 		game->view.rotateY(viewAngleY);
 		
-		audioAnalyzer.getSpectrum(currentTime, &m_currentSpectrum);
+		audioAnalyzer.getSpectrum(currentTime, m_currentSpectrum);
 	}
 }
 
 void GameState::draw(game::Game* game)
 {
-	float currentTime = game->time->getTime() - m_beginTime;
+	float currentTime = m_music->getPosition();
 	float flashDuration = 0.1f;
 
 	float flashValue = 0.0f;
@@ -88,8 +124,8 @@ void GameState::draw(game::Game* game)
 	if (currentTime - m_lastTick < flashDuration)
 	{
 		flashValue = ((currentTime - m_lastTick) / flashDuration) * 0.3f + 0.7f;
-		game->video->setClearColor(flat::video::Color(flashValue, 0.f, 0.f, 1.0f));
-		//game->video->setClearColor(flat::video::Color::WHITE);
+		//game->video->setClearColor(flat::video::Color(flashValue, 0.f, 0.f, 1.0f));
+		game->video->setClearColor(flat::video::Color::WHITE);
 	}
 	else if (m_currentSpectrum != NULL)
 	{
@@ -117,13 +153,50 @@ void GameState::draw(game::Game* game)
 	flat::geometry::Rectangle r(flat::geometry::Vector2(2.0f, 2.0f), flat::geometry::Vector2((windowSize.x - 4.0f) * cursorPosition, 2.0f));
 	game->levelVpMatrixUniform.setMatrix4(game->interfaceView.getViewProjectionMatrix());
 	r.draw(game->levelPositionAttribute, game->levelUvAttribute);
+
+	if (m_drawSpectrum)
+		drawCurrentSpectrum(game);
 }
 
 void GameState::exit(flat::state::Agent* agent)
 {
 	//game::Game* game = (game::Game*) agent;
 	
-	
+	FLAT_DELETE(m_music);
+}
+
+void GameState::drawCurrentSpectrum(game::Game* game)
+{
+	game->interfaceProgram.use(game->video->window);
+
+	const flat::geometry::Vector2 windowSize = game->video->window->getSize();
+
+	const float spectrumX = 10.0f;
+	const float spectrumY = 10.0f;
+	const float spectrumWidth = windowSize.x - 20.0f;
+	const float spectrumHeight = 200.0f;
+	const float padding = 2.0f;
+
+	{
+		game->levelColorUniform.setColor(flat::video::Color(0.0f, 0.0f, 0.0f, 1.0f));
+		flat::geometry::Rectangle r(flat::geometry::Vector2(spectrumX - padding, spectrumY - padding), flat::geometry::Vector2(spectrumWidth + padding * 2.0f, spectrumHeight + padding * 2.0f));
+		r.draw(game->levelPositionAttribute, game->levelUvAttribute);
+	}
+
+	if (m_currentSpectrum)
+	{
+		game->levelColorUniform.setColor(flat::video::Color(0.0f, 1.0f, 0.0f, 1.0f));
+		game->levelVpMatrixUniform.setMatrix4(game->interfaceView.getViewProjectionMatrix());
+		const std::vector<essentia::Real>& spectrumData = m_currentSpectrum->getSpectrum();
+		essentia::Real max = 1.f / log10(audioAnalyzer.getMax());
+		float x = 0;
+		for (essentia::Real y : spectrumData)
+		{
+			flat::geometry::Rectangle r(flat::geometry::Vector2(spectrumX + x / spectrumData.size() * spectrumWidth, spectrumY), flat::geometry::Vector2(1.0f, 1.f / log10(y) / max * spectrumHeight));
+			r.draw(game->levelPositionAttribute, game->levelUvAttribute);
+			++x;
+		}
+	}
 }
 
 } // game

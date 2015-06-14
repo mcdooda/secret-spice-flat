@@ -174,35 +174,45 @@ void AudioAnalyzer::analyze()
 		m_spectrumAlgorithm->compute();
 		m_loudnessAlgorithm->compute();
 		m_strongPeakAlgorithm->compute();
-		m_spectrums.push_back(Spectrum(*m_spectrumBuffer, m_strongPeakValue, m_loudness));
+		m_spectrums.emplace_back(*m_spectrumBuffer, m_strongPeakValue, m_loudness);
 	}
+	m_spectrums.shrink_to_fit();
 }
 
 void AudioAnalyzer::computeAverageLoudness()
 {
 	m_averageLoudness = 0.0f;
-	for (std::vector<Spectrum>::iterator it = m_spectrums.begin(); it != m_spectrums.end(); it++)
-		m_averageLoudness += it->getLoudness();
-		
+	m_maxLoudness = 0.0f;
+	m_max = 0.0f;
+	for (const Spectrum& spectrum : m_spectrums)
+	{
+		m_averageLoudness += spectrum.getLoudness();
+
+		if (m_maxLoudness > spectrum.getLoudness())
+			m_maxLoudness = spectrum.getLoudness();
+
+		if (spectrum.getMax().y > m_max)
+			m_max = spectrum.getMax().y;
+	}
 	m_averageLoudness /= m_spectrums.size();
 }
 
 void AudioAnalyzer::freeAlgorithms()
 {
 	// algorithms' data
-	delete m_audioBuffer;
-	delete m_frame;
-	delete m_windowedFrame;
-	delete m_spectrumBuffer;
+	FLAT_DELETE(m_audioBuffer);
+	FLAT_DELETE(m_frame);
+	FLAT_DELETE(m_windowedFrame);
+	FLAT_DELETE(m_spectrumBuffer);
 	
 	// algorithms
-	delete m_frameCutterAlgorithm;
-	delete m_windowingAlgorithm;
-	delete m_spectrumAlgorithm;
-	delete m_strongPeakAlgorithm;
+	FLAT_DELETE(m_frameCutterAlgorithm);
+	FLAT_DELETE(m_windowingAlgorithm);
+	FLAT_DELETE(m_spectrumAlgorithm);
+	FLAT_DELETE(m_strongPeakAlgorithm);
 }
 
-void AudioAnalyzer::getSpectrum(float time, Spectrum** spectrum) const
+void AudioAnalyzer::getSpectrum(float time, const Spectrum*& spectrum) const
 {
 	unsigned int index;
 
@@ -213,10 +223,10 @@ void AudioAnalyzer::getSpectrum(float time, Spectrum** spectrum) const
 		index = floor(time / m_duration * m_spectrums.size());
 	
 	if (index < m_spectrums.size())
-		*spectrum = (Spectrum*) &m_spectrums[index];
+		spectrum = &m_spectrums[index];
 	
 	else
-		*spectrum = NULL;
+		spectrum = nullptr;
 }
 
 } // game

@@ -21,7 +21,7 @@ void main()
 	vec2 px = vec2(1.0 / screenSize.x, 1.0 / screenSize.y);
 	float initAngle = currentTime * 20.0;
 	vec3 angles = vec3(initAngle, initAngle + M_PI * 2.0 / 3.0, initAngle - M_PI * 2.0 / 3.0);
-	float radius = flashValue * 20.0;
+	float radius = flashValue * 7.0;
 	float high = 1.0 + flashValue * 0.5;
 	float low = (1 - high) / 2;
 	outColor = mult(texture(screen, uv2 + vec2(cos(angles.r) * px.x, sin(angles.r) * px.y) * radius), vec4(high, low, low, 1.0))
